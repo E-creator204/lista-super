@@ -4,110 +4,139 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>Lista de Súper</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --sage:#6B8F5E;
-    --sage-deep:#4A6B3E;
-    --cream:#F7F5EF;
-    --paper:#FFFFFF;
-    --ink:#2E2E2A;
-    --ink-soft:#6B6B62;
-    --line:#E4E1D6;
-    --danger:#C97B7B;
+    --bg:#1E2A22;
+    --card:#2B3D31;
+    --card-done:#232F27;
+    --input-bg:#EFE6D0;
+    --input-text:#1E2A22;
+    --gold:#D9A441;
+    --text-light:#F4EEE0;
+    --muted:#8FA08E;
+    --muted2:#6B7A6A;
+    --muted3:#7A8579;
+    --line:#3A4A3E;
+    --danger:#C1554B;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{
-    font-family:'Poppins', sans-serif;
-    background:var(--cream);
-    color:var(--ink);
+    font-family:'IBM Plex Mono', monospace;
+    background:var(--bg);
+    color:var(--text-light);
     min-height:100svh;
   }
-  .wrap{ max-width:520px; margin:0 auto; padding:0 0 6rem; min-height:100svh; }
+  .handwritten{ font-family:'Caveat', cursive; }
+  input, select, button{ font-family:inherit; }
 
   /* ---------- LOGIN ---------- */
   #loginScreen{
     min-height:100svh; display:flex; flex-direction:column; align-items:center; justify-content:center;
     padding:6vh 6vw; text-align:center;
   }
-  #loginScreen h1{ font-size:1.9rem; color:var(--sage-deep); font-weight:700; margin-bottom:.3rem;}
-  #loginScreen p.sub{ color:var(--ink-soft); font-size:.92rem; margin-bottom:2.2rem;}
-  .field{ width:100%; max-width:340px; text-align:left; margin-bottom:1rem; }
-  .field label{ font-size:.78rem; color:var(--ink-soft); margin-bottom:.35rem; display:block; }
+  #loginScreen h1{ font-family:'Caveat', cursive; font-size:2.6rem; color:var(--gold); font-weight:700; }
+  #loginScreen p.sub{ color:var(--muted); font-size:.85rem; margin-bottom:2rem;}
+  .field{ width:100%; max-width:320px; text-align:left; margin-bottom:.9rem; }
+  .field label{ font-size:.72rem; color:var(--muted); margin-bottom:.3rem; display:block; }
   .field input{
-    width:100%; padding:.85rem 1rem; border-radius:12px; border:1.5px solid var(--line);
-    font-family:inherit; font-size:1rem; background:var(--paper);
+    width:100%; padding:.8rem .9rem; border-radius:10px; border:none;
+    font-size:.95rem; background:var(--input-bg); color:var(--input-text);
   }
-  .field input:focus{ outline:none; border-color:var(--sage); }
+  .field input:focus{ outline:2px solid var(--gold); }
   .btn-primary{
-    width:100%; max-width:340px; background:var(--sage-deep); color:#fff; border:none;
-    padding:.95rem; border-radius:12px; font-family:inherit; font-size:1rem; font-weight:600;
-    cursor:pointer; margin-top:.5rem;
+    width:100%; max-width:320px; background:var(--gold); color:var(--bg); border:none;
+    padding:.85rem; border-radius:10px; font-size:.95rem; font-weight:600;
+    cursor:pointer; margin-top:.4rem;
   }
-  .btn-primary:active{ transform:scale(.98); }
-  #loginError{ color:var(--danger); font-size:.85rem; margin-top:.9rem; min-height:1.2rem; }
+  #loginError{ color:#E08787; font-size:.8rem; margin-top:.8rem; min-height:1.1rem; }
 
   /* ---------- APP ---------- */
-  #appScreen{ display:none; }
+  #appScreen{ display:none; min-height:100svh; flex-direction:column; }
   header{
-    position:sticky; top:0; z-index:10;
-    background:var(--sage-deep); color:#fff;
-    padding:1.3rem 1.4rem 1.6rem; border-radius:0 0 24px 24px;
+    padding:1.2rem 1.2rem .9rem; border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:flex-start;
   }
-  header .top{ display:flex; justify-content:space-between; align-items:center; }
-  header h1{ font-size:1.4rem; font-weight:700; }
-  header .who{ font-size:.75rem; opacity:.85; margin-top:.15rem; }
+  header .htitle{ font-family:'Caveat', cursive; font-size:2rem; color:var(--gold); line-height:1; }
+  header .hsub{ font-size:.68rem; color:var(--muted2); margin-top:.2rem; }
   #logoutBtn{
-    background:rgba(255,255,255,.15); border:none; color:#fff; padding:.5rem .8rem;
-    border-radius:10px; font-size:.75rem; font-family:inherit; cursor:pointer;
-  }
-  .progress-row{ margin-top:1rem; font-size:.8rem; opacity:.9; }
-
-  .add-form{
-    display:flex; gap:.6rem; padding:1.1rem 1.2rem 0;
-  }
-  .add-form input{
-    flex:1; padding:.85rem 1rem; border-radius:12px; border:1.5px solid var(--line);
-    font-family:inherit; font-size:.95rem; background:var(--paper);
-  }
-  .add-form input:focus{ outline:none; border-color:var(--sage); }
-  .add-form button{
-    background:var(--sage); color:#fff; border:none; width:48px; border-radius:12px;
-    font-size:1.4rem; cursor:pointer; flex-shrink:0;
+    background:none; border:1px solid var(--line); color:var(--muted); padding:.4rem .7rem;
+    border-radius:8px; font-size:.68rem; cursor:pointer;
   }
 
-  .list{ padding:1.2rem; display:flex; flex-direction:column; gap:.6rem; }
+  .list{ flex:1; overflow-y:auto; padding:1rem 1rem 8rem; }
+  .empty{ text-align:center; margin-top:4rem; color:var(--muted); }
+  .empty .icon{ font-size:2rem; opacity:.5; margin-bottom:.4rem; }
+  .empty .big{ font-family:'Caveat', cursive; font-size:1.5rem; }
+  .empty .small{ font-size:.7rem; margin-top:.2rem; }
+
+  .cat-group{ margin-bottom:1.3rem; }
+  .cat-head{ display:flex; align-items:center; gap:.5rem; margin-bottom:.5rem; padding:0 .2rem; }
+  .cat-dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .cat-label{ font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+
   .item{
-    display:flex; align-items:center; gap:.8rem;
-    background:var(--paper); border-radius:14px; padding:.9rem 1rem;
-    box-shadow:0 3px 10px -4px rgba(0,0,0,.08);
+    background:var(--card); border-radius:12px; padding:.65rem .8rem; margin-bottom:.5rem;
+    display:flex; align-items:center; gap:.7rem;
   }
   .item .check{
-    width:24px; height:24px; border-radius:50%; border:2px solid var(--sage);
-    flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:pointer;
-    transition:background .2s ease;
+    width:24px; height:24px; border-radius:50%; flex-shrink:0; border:2px solid #7FB069;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; background:none;
   }
-  .item.checked .check{ background:var(--sage); }
-  .item .check svg{ width:14px; height:14px; opacity:0; }
-  .item.checked .check svg{ opacity:1; }
-  .item .info{ flex:1; min-width:0; }
-  .item .name{ font-size:.98rem; font-weight:500; }
-  .item.checked .name{ text-decoration:line-through; color:var(--ink-soft); }
-  .item .qty{ font-size:.78rem; color:var(--ink-soft); margin-top:.1rem; }
-  .item .added{ font-size:.68rem; color:var(--ink-soft); opacity:.7; margin-top:.15rem; }
-  .item .del{
-    background:none; border:none; color:var(--danger); font-size:1.1rem; cursor:pointer;
-    padding:.3rem; flex-shrink:0; opacity:.6;
+  .item .check svg{ width:13px; height:13px; opacity:0; }
+  .item .name{ flex:1; font-size:.9rem; word-break:break-word; }
+  .item .by{ font-size:.62rem; color:var(--muted2); flex-shrink:0; }
+  .item button.icon-btn{ background:none; border:none; cursor:pointer; padding:.2rem; flex-shrink:0; }
+  .item .pencil{ color:var(--muted); }
+  .item .trash{ color:var(--danger); }
+
+  .item.editing{ flex-wrap:wrap; }
+  .item.editing input{
+    flex:1; min-width:100px; padding:.4rem .6rem; border-radius:6px; border:none;
+    background:var(--input-bg); color:var(--input-text); font-size:.85rem;
   }
-  .empty{ text-align:center; padding:3rem 1rem; color:var(--ink-soft); font-size:.9rem; }
+  .item.editing select{
+    padding:.35rem .4rem; border-radius:6px; border:none; background:var(--input-bg);
+    color:var(--input-text); font-size:.72rem;
+  }
+
+  .done-divider{ display:flex; align-items:center; gap:.6rem; margin:1.1rem 0 .6rem; }
+  .done-divider .hline{ flex:1; height:1px; background:var(--line); }
+  .done-divider span{ font-size:.65rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted2); }
+  .item.done{ background:var(--card-done); opacity:.65; }
+  .item.done .name{ text-decoration:line-through; color:var(--muted3); }
+  .item.done .check{ background:var(--gold); border-color:var(--gold); }
+  .item.done .check svg{ opacity:1; }
+
+  /* ---------- ADD BAR ---------- */
+  .addbar{
+    position:fixed; bottom:0; left:0; right:0; background:#24332A;
+    border-top:1px solid var(--line); padding:.8rem 1rem; z-index:20;
+  }
+  .addbar-row{ display:flex; gap:.5rem; align-items:center; }
+  .cat-select-wrap{ position:relative; flex-shrink:0; }
+  .cat-select-wrap select{
+    appearance:none; border:none; border-radius:999px; padding:.55rem 1.4rem .55rem .7rem;
+    font-size:.68rem; font-weight:600; color:var(--bg); cursor:pointer;
+  }
+  .cat-select-wrap .chev{ position:absolute; right:.4rem; top:50%; transform:translateY(-50%); pointer-events:none; font-size:.6rem; color:var(--bg); }
+  .addbar input{
+    flex:1; min-width:0; padding:.65rem .8rem; border-radius:10px; border:none;
+    background:var(--input-bg); color:var(--input-text); font-size:.9rem;
+  }
+  .addbar button.add-btn{
+    background:var(--gold); border:none; border-radius:10px; width:42px; height:38px;
+    flex-shrink:0; font-size:1.2rem; color:var(--bg); cursor:pointer;
+  }
+  .hint{ font-size:.62rem; color:var(--muted2); margin-top:.35rem; margin-left:.2rem; }
+  .hint b{ font-weight:600; }
 </style>
 </head>
 <body>
 
 <div id="loginScreen">
-  <h1>🛒 Lista de Súper</h1>
+  <h1>🛒 lista de súper</h1>
   <p class="sub">Compartida entre Eduardo y Lineth</p>
   <div class="field">
     <label>Correo</label>
@@ -122,47 +151,111 @@
 </div>
 
 <div id="appScreen">
-  <div class="wrap">
-    <header>
-      <div class="top">
-        <div>
-          <h1>Lista de Súper</h1>
-          <div class="who" id="whoLabel"></div>
-        </div>
-        <button id="logoutBtn">Salir</button>
+  <header>
+    <div>
+      <div class="htitle">lista de súper</div>
+      <div class="hsub" id="whoLabel"></div>
+    </div>
+    <button id="logoutBtn">Salir</button>
+  </header>
+
+  <div class="list" id="list"></div>
+
+  <div class="addbar">
+    <div class="addbar-row">
+      <div class="cat-select-wrap">
+        <select id="catSelect"></select>
+        <span class="chev">▾</span>
       </div>
-      <div class="progress-row" id="progressRow"></div>
-    </header>
-
-    <form class="add-form" id="addForm">
-      <input type="text" id="newItemName" placeholder="Agregar item..." autocomplete="off">
-      <button type="submit">+</button>
-    </form>
-
-    <div class="list" id="list"></div>
+      <input type="text" id="newItemName" placeholder="agregar producto…" autocomplete="off">
+      <button class="add-btn" id="addBtn">+</button>
+    </div>
+    <div class="hint" id="hintRow"></div>
   </div>
 </div>
 
 <script>
-  // ======= CONFIGURA ESTO =======
+  // ======= CONFIGURACIÓN SUPABASE =======
   const SUPABASE_URL = "https://shtrymsmbfbgckusetwl.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_5fQr0skT0bUR5yTHvJGv_Q_yXFkyBti";
-  // ===============================
+  // ========================================
 
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // ---------- Categorías + clasificador automático (portado del original) ----------
+  const CATEGORIES = [
+    { id: "frutas", label: "Frutas y verduras", short: "Frutas/Verd.", color: "#7FB069" },
+    { id: "lacteos", label: "Lácteos y huevos", short: "Lácteos", color: "#E3CD7C" },
+    { id: "carnes", label: "Carnes y pescado", short: "Carnes", color: "#C1554B" },
+    { id: "panaderia", label: "Panadería", short: "Panadería", color: "#C99B5D" },
+    { id: "limpieza", label: "Limpieza", short: "Limpieza", color: "#6FA8C7" },
+    { id: "bebidas", label: "Bebidas", short: "Bebidas", color: "#4FA8A0" },
+    { id: "otros", label: "Otros", short: "Otros", color: "#A98FC4" },
+  ];
+  const catById = (id) => CATEGORIES.find(c => c.id === id) || CATEGORIES[CATEGORIES.length - 1];
+
+  const normalize = (s) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+
+  const CATEGORY_KEYWORDS = {
+    frutas: ["manzana","banana","guineo","platano","naranja","limon","lima","uva","pera","mango","pina","sandia","melon","fresa","frutilla","papaya","aguacate","tomate","cebolla","papa","zanahoria","lechuga","brocoli","espinaca","pepino","pimenton","ajo","apio","cilantro","culantro","yuca","name","otoe","repollo","calabaza","zapallo","elote","maiz","chayote","durazno","kiwi","coco","cebollin","vegetal","verdura","fruta","champinon","hongo"],
+    lacteos: ["leche","queso","yogur","yogurt","mantequilla","huevo","huevos","crema","natilla","margarina","requeson"],
+    carnes: ["pollo","carne","res","cerdo","puerco","pescado","camaron","tocino","jamon","salchicha","chorizo","atun","mortadela","pavo","costilla","chuleta","marisco","langosta","filete","molida","bistec","salami","pepperoni"],
+    panaderia: ["pan","tortilla","galleta","bizcocho","torta","croissant","pastel","dona","hojaldre","baguette","hot dog","hotdog","hamburguesa pan","empanada"],
+    limpieza: ["detergente","jabon","cloro","desinfectante","papel higienico","papel toalla","servilleta","escoba","esponja","suavizante","lavaplatos","ambientador","bolsa de basura","bolsas de basura","shampoo","champu","pasta dental","cepillo de dientes","desodorante","toallitas","fabuloso","pinol","limpiador"],
+    bebidas: ["agua","jugo","refresco","soda","cerveza","vino","cafe","te ", " te","chicha","gaseosa","energizante","malta","leche de coco","coca cola","pepsi"],
+  };
+
+  function classify(rawText){
+    const t = normalize(rawText);
+    if (!t) return null;
+    for (const cat of CATEGORIES) {
+      const words = CATEGORY_KEYWORDS[cat.id];
+      if (!words) continue;
+      for (const kw of words) if (t.includes(kw)) return cat.id;
+    }
+    return "otros";
+  }
+
+  // ---------- DOM refs ----------
   const loginScreen = document.getElementById('loginScreen');
   const appScreen = document.getElementById('appScreen');
   const loginBtn = document.getElementById('loginBtn');
   const loginError = document.getElementById('loginError');
   const whoLabel = document.getElementById('whoLabel');
   const listEl = document.getElementById('list');
-  const progressRow = document.getElementById('progressRow');
-  const addForm = document.getElementById('addForm');
   const newItemName = document.getElementById('newItemName');
+  const addBtn = document.getElementById('addBtn');
+  const catSelect = document.getElementById('catSelect');
+  const hintRow = document.getElementById('hintRow');
 
   let currentUser = null;
   let items = [];
+  let manualCat = null;
+  let editingId = null;
+
+  // Populate category select
+  catSelect.innerHTML = CATEGORIES.map(c => `<option value="${c.id}">${c.short}</option>`).join('');
+  function updateCatSelectColor(){
+    catSelect.style.background = catById(catSelect.value).color;
+  }
+  catSelect.addEventListener('change', () => { manualCat = catSelect.value; updateCatSelectColor(); });
+  updateCatSelectColor();
+
+  newItemName.addEventListener('input', () => {
+    const t = newItemName.value.trim();
+    if (!manualCat) {
+      const detected = classify(t) || 'otros';
+      catSelect.value = detected;
+      updateCatSelectColor();
+    }
+    if (t === '') { manualCat = null; }
+    if (t) {
+      const c = catById(catSelect.value);
+      hintRow.innerHTML = `clasificado como <b style="color:${c.color}">${c.label}</b> · toca el círculo para cambiarlo`;
+    } else {
+      hintRow.innerHTML = '';
+    }
+  });
 
   // ---------- AUTH ----------
   loginBtn.addEventListener('click', async () => {
@@ -170,10 +263,7 @@
     const password = document.getElementById('password').value;
     loginError.textContent = '';
     const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) {
-      loginError.textContent = 'Correo o contraseña incorrectos.';
-      return;
-    }
+    if (error) { loginError.textContent = 'Correo o contraseña incorrectos.'; return; }
     onLogin(data.user);
   });
 
@@ -184,75 +274,62 @@
 
   async function checkSession(){
     const { data } = await sb.auth.getSession();
-    if (data.session) {
-      onLogin(data.session.user);
-    }
+    if (data.session) onLogin(data.session.user);
   }
 
   function onLogin(user){
     currentUser = user;
     loginScreen.style.display = 'none';
-    appScreen.style.display = 'block';
-    whoLabel.textContent = user.email;
+    appScreen.style.display = 'flex';
+    whoLabel.textContent = user.email.split('@')[0];
     loadItems();
     subscribeRealtime();
   }
 
-  // ---------- ITEMS ----------
+  // ---------- DATA ----------
   async function loadItems(){
     const { data, error } = await sb.from('items').select('*').order('created_at', { ascending: true });
-    if (!error) {
-      items = data;
-      render();
-    }
+    if (!error) { items = data; render(); }
   }
 
   function subscribeRealtime(){
     sb.channel('items-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'items' }, () => {
-        loadItems();
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'items' }, () => loadItems())
       .subscribe();
   }
 
-  addForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = newItemName.value.trim();
-    if (!name) return;
+  async function addItem(){
+    const t = newItemName.value.trim();
+    if (!t) return;
+    const category = manualCat || classify(t) || 'otros';
     newItemName.value = '';
-    await sb.from('items').insert({ name, added_by: currentUser.email });
-  });
+    manualCat = null;
+    hintRow.innerHTML = '';
+    await sb.from('items').insert({ name: t, category, added_by: currentUser.email });
+  }
+  addBtn.addEventListener('click', addItem);
+  newItemName.addEventListener('keydown', (e) => { if (e.key === 'Enter') addItem(); });
 
   async function toggleItem(id, checked){
-    await sb.from('items').update({ checked: !checked }).eq('id', id);
+    await sb.from('items').update({ checked: !checked, checked_at: !checked ? new Date().toISOString() : null }).eq('id', id);
   }
-
   async function deleteItem(id){
     await sb.from('items').delete().eq('id', id);
   }
-
-  function render(){
-    if (items.length === 0) {
-      listEl.innerHTML = '<div class="empty">La lista está vacía. Agrega algo arriba 🌱</div>';
-      progressRow.textContent = '';
-      return;
-    }
-    const doneCount = items.filter(i => i.checked).length;
-    progressRow.textContent = `${doneCount} de ${items.length} completados`;
-
-    listEl.innerHTML = items.map(item => `
-      <div class="item ${item.checked ? 'checked' : ''}" data-id="${item.id}">
-        <div class="check" onclick="window.__toggle('${item.id}', ${item.checked})">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
-        </div>
-        <div class="info">
-          <div class="name">${escapeHtml(item.name)}</div>
-          <div class="added">agregado por ${item.added_by ? item.added_by.split('@')[0] : '—'}</div>
-        </div>
-        <button class="del" onclick="window.__del('${item.id}')">✕</button>
-      </div>
-    `).join('');
+  function startEdit(id){ editingId = id; render(); }
+  async function commitEdit(id){
+    const nameInput = document.getElementById('edit-name-' + id);
+    const catInput = document.getElementById('edit-cat-' + id);
+    const t = nameInput.value.trim();
+    if (!t) { editingId = null; render(); return; }
+    await sb.from('items').update({ name: t, category: catInput.value }).eq('id', id);
+    editingId = null;
   }
+
+  window.__toggle = toggleItem;
+  window.__del = deleteItem;
+  window.__edit = startEdit;
+  window.__commitEdit = commitEdit;
 
   function escapeHtml(str){
     const div = document.createElement('div');
@@ -260,8 +337,62 @@
     return div.innerHTML;
   }
 
-  window.__toggle = toggleItem;
-  window.__del = deleteItem;
+  const CHECK_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>`;
+
+  function render(){
+    const active = items.filter(i => !i.checked);
+    const done = items.filter(i => i.checked).sort((a,b) => new Date(a.checked_at||0) - new Date(b.checked_at||0));
+
+    if (items.length === 0) {
+      listEl.innerHTML = `<div class="empty"><div class="icon">🛒</div><div class="big">la lista está vacía</div><div class="small">agrega el primer producto abajo</div></div>`;
+      return;
+    }
+
+    const groups = CATEGORIES.map(c => ({
+      ...c,
+      items: active.filter(i => i.category === c.id).sort((a,b) => new Date(a.created_at) - new Date(b.created_at))
+    })).filter(g => g.items.length > 0);
+
+    let html = groups.map(g => `
+      <div class="cat-group">
+        <div class="cat-head">
+          <span class="cat-dot" style="background:${g.color}"></span>
+          <span class="cat-label">${g.label}</span>
+        </div>
+        ${g.items.map(item => itemHtml(item, g.color, false)).join('')}
+      </div>
+    `).join('');
+
+    if (done.length > 0) {
+      html += `
+        <div class="done-divider"><div class="hline"></div><span>en el carrito</span><div class="hline"></div></div>
+        ${done.map(item => itemHtml(item, catById(item.category).color, true)).join('')}
+      `;
+    }
+
+    listEl.innerHTML = html;
+  }
+
+  function itemHtml(item, color, isDone){
+    if (editingId === item.id) {
+      return `
+        <div class="item editing">
+          <input type="text" id="edit-name-${item.id}" value="${escapeHtml(item.name)}">
+          <select id="edit-cat-${item.id}">
+            ${CATEGORIES.map(c => `<option value="${c.id}" ${c.id===item.category?'selected':''}>${c.short}</option>`).join('')}
+          </select>
+          <button class="icon-btn" style="color:#7FB069" onclick="window.__commitEdit('${item.id}')">✓</button>
+        </div>`;
+    }
+    return `
+      <div class="item ${isDone ? 'done' : ''}">
+        <button class="check" style="${isDone ? '' : `border-color:${color}`}" onclick="window.__toggle('${item.id}', ${item.checked})">${CHECK_SVG}</button>
+        <span class="name">${escapeHtml(item.name)}</span>
+        <span class="by">${item.added_by ? item.added_by.split('@')[0] : ''}</span>
+        ${!isDone ? `<button class="icon-btn pencil" onclick="window.__edit('${item.id}')">✎</button>` : ''}
+        <button class="icon-btn trash" onclick="window.__del('${item.id}')">🗑</button>
+      </div>`;
+  }
 
   checkSession();
 </script>
