@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>Lista de Súper</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3/dist/umd/supabase.js"></script>
 <style>
   :root{
     --bg:#1E2A22;
@@ -167,7 +168,7 @@
         <select id="catSelect"></select>
         <span class="chev">▾</span>
       </div>
-      <input type="text" id="newItemName" placeholder="agregar producto…" autocomplete="off">
+      <input type="text" id="newItemName" placeholder="agregar producto…" autocomplete="off" maxlength="200">
       <button class="add-btn" id="addBtn">+</button>
     </div>
     <div class="hint" id="hintRow"></div>
@@ -294,7 +295,20 @@
 
   function subscribeRealtime(){
     sb.channel('items-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'items' }, () => loadItems())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'items' }, (payload) => {
+        if (!items.find(i => i.id === payload.new.id)) {
+          items.push(payload.new);
+          render();
+        }
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'items' }, (payload) => {
+        const idx = items.findIndex(i => i.id === payload.new.id);
+        if (idx !== -1) { items[idx] = payload.new; render(); }
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'items' }, (payload) => {
+        items = items.filter(i => i.id !== payload.old.id);
+        render();
+      })
       .subscribe();
   }
 
@@ -305,7 +319,7 @@
     newItemName.value = '';
     manualCat = null;
     hintRow.innerHTML = '';
-    await sb.from('items').insert({ name: t, category, added_by: currentUser.email });
+    await sb.from('items').insert({ name: t, category });
   }
   addBtn.addEventListener('click', addItem);
   newItemName.addEventListener('keydown', (e) => { if (e.key === 'Enter') addItem(); });
@@ -388,7 +402,7 @@
       <div class="item ${isDone ? 'done' : ''}">
         <button class="check" style="${isDone ? '' : `border-color:${color}`}" onclick="window.__toggle('${item.id}', ${item.checked})">${CHECK_SVG}</button>
         <span class="name">${escapeHtml(item.name)}</span>
-        <span class="by">${item.added_by ? item.added_by.split('@')[0] : ''}</span>
+        <span class="by">${item.added_by ? escapeHtml(item.added_by.split('@')[0]) : ''}</span>
         ${!isDone ? `<button class="icon-btn pencil" onclick="window.__edit('${item.id}')">✎</button>` : ''}
         <button class="icon-btn trash" onclick="window.__del('${item.id}')">🗑</button>
       </div>`;
