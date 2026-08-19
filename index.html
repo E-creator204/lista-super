@@ -148,7 +148,7 @@
     <label>Contraseña</label>
     <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
   </div>
-  <div class="h-captcha" data-sitekey="362e57f0-7230-4bec-9166-fd9487e85e04" data-callback="onCaptchaOk"></div>
+  <div class="h-captcha" data-sitekey="TU_SITE_KEY_AQUI" data-callback="onCaptchaOk"></div>
   <button class="btn-primary" id="loginBtn" disabled>Entrar</button>
   <div id="loginError"></div>
 </div>
@@ -279,9 +279,36 @@
   });
 
   document.getElementById('logoutBtn').addEventListener('click', async () => {
+    stopIdleTimer();
     await sb.auth.signOut();
     location.reload();
   });
+
+  // ---------- AUTO-LOGOUT POR INACTIVIDAD ----------
+  let idleTimer;
+  const IDLE_LIMIT_MS = 15 * 60 * 1000; // 15 minutos, ajusta si quieres
+
+  function resetIdleTimer() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(async () => {
+      await sb.auth.signOut();
+      location.reload();
+    }, IDLE_LIMIT_MS);
+  }
+
+  function startIdleTimer() {
+    ['mousemove', 'keydown', 'touchstart', 'click'].forEach(evt =>
+      document.addEventListener(evt, resetIdleTimer)
+    );
+    resetIdleTimer();
+  }
+
+  function stopIdleTimer() {
+    clearTimeout(idleTimer);
+    ['mousemove', 'keydown', 'touchstart', 'click'].forEach(evt =>
+      document.removeEventListener(evt, resetIdleTimer)
+    );
+  }
 
   async function checkSession(){
     const { data } = await sb.auth.getSession();
@@ -295,6 +322,7 @@
     whoLabel.textContent = user.email.split('@')[0];
     loadItems();
     subscribeRealtime();
+    startIdleTimer();
   }
 
   // ---------- DATA ----------
